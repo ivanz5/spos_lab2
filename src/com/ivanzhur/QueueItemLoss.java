@@ -1,58 +1,30 @@
 package com.ivanzhur;
 
-import java.util.LinkedList;
-
 public class QueueItemLoss extends Queue {
 
-    private int MAX_SIZE = 5;
-    private java.util.Queue<String> items;
+    private int item = -1;
 
-    public QueueItemLoss() {
-        items = new LinkedList<>();
+    @Override
+    public synchronized void put(int item) {
+        System.out.println("Putting item: " + item);
+        this.item = item;
+        notifyAll();
     }
 
     @Override
-    public void add(String item) {
-        synchronized (this) {
-            while (items.size() == MAX_SIZE) {
-                try {
-                    System.out.println("Producer waiting");
-                    wait();
-                } catch (Exception ex) {
-                }
-            }
-
-            items.add(item);
+    public synchronized int take() {
+        while (item == -1) {
             try {
-                notifyAll();
-            } catch (Exception ex) {
-
+                wait();
             }
-        }
-    }
-
-    @Override
-    public String take() {
-        String item = null;
-
-        synchronized (this) {
-            while (items.size() == 0) {
-                try {
-                    System.out.println("Consumer waiting");
-                    wait();
-                } catch (Exception ex) {
-                }
+            catch (InterruptedException ex){
             }
         }
 
-        item = items.remove();
+        System.out.println("Taking item: " + item);
 
-        synchronized (this) {
-            try {
-                notifyAll();
-            } catch (Exception ex) {
-            }
-            return item;
-        }
+        int res = item;
+        item = -1;
+        return res;
     }
 }

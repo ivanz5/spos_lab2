@@ -1,19 +1,14 @@
 package com.ivanzhur;
 
-import java.util.LinkedList;
-
 public class QueueDeadlock extends Queue {
 
-    private static final int MAX_SIZE = 5;
-    private java.util.Queue<String> items;
-
-    public QueueDeadlock() {
-        items = new LinkedList<>();
-    }
+    private int item = -1;
 
     @Override
-    public void add(String item) {
-        while (items.size() == MAX_SIZE) {
+    public void put(int item) {
+        System.out.println("Putting item " + item);
+
+        while (this.item != -1) {
             synchronized (this) {
                 try {
                     System.out.println("Producer waiting");
@@ -23,34 +18,40 @@ public class QueueDeadlock extends Queue {
             }
         }
 
-        items.add(item);
-        try {
-            notifyAll();
-        }
-        catch (Exception ex) {
+        this.item = item;
 
+        synchronized (this) {
+            try {
+                notifyAll();
+            } catch (Exception ex) {
+            }
         }
     }
 
     @Override
-    public String take() {
-        while (items.size() == 0) {
+    public int take() {
+        while (item == -1) {
             synchronized (this) {
                 try {
                     System.out.println("Consumer waiting");
                     wait();
                 } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
             }
         }
 
-        String item = items.remove();
-        try {
-            notifyAll();
-        }
-        catch (Exception ex) {
+        System.out.println("Getting item " + item);
 
+        int res = item;
+        item = -1;
+        synchronized (this) {
+            try {
+                notifyAll();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
-        return item;
+        return res;
     }
 }

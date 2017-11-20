@@ -4,12 +4,16 @@ public class ItemLoss {
 
     public static void main(String[] args) {
         Queue queue = new QueueItemLoss();
-        Producer producer1 = new Producer(queue, 1);
-        Producer producer2 = new Producer(queue, 2);
-        Consumer consumer = new Consumer(queue);
+        Producer producer = new Producer(queue);
+        Consumer consumer = new Consumer(queue, producer::stopProducer);
 
-        producer1.start();
+        producer.start();
         consumer.start();
-        new Consumer(queue).start();
+
+        try {
+            producer.join();
+            consumer.join();
+        } catch (InterruptedException ex) {
+        }
     }
 }

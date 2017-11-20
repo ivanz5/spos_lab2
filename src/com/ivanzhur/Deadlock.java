@@ -7,13 +7,14 @@ public class Deadlock {
         Producer producer = new Producer(queue);
         Consumer consumer = new Consumer(queue);
 
-        producer.start();
-        try {
-            Thread.sleep(1000);
-        }
-        catch (InterruptedException e) {
-
-        }
         consumer.start();
+        producer.start();
+
+        try {
+            producer.join();
+            consumer.join();
+        }
+        catch (InterruptedException ex) {
+        }
     }
 }

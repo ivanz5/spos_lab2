@@ -1,6 +1,6 @@
 package com.ivanzhur;
 
 public abstract class Queue {
-    public abstract void add(String item);
-    public abstract String take();
+    public abstract void put(int item);
+    public abstract int take();
 }
